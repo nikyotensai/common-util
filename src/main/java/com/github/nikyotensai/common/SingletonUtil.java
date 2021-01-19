@@ -16,10 +16,10 @@ public class SingletonUtil {
         return (T) instanceMap.computeIfAbsent(clazz, (type) -> {
             try {
                 return type.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                log.error("create instance of type[{}] failed.", clazz, e);
+            } catch (InstantiationException | IllegalAccessException ex) {
+                log.error("Create instance of type[{}] failed.Classes must have a zero-argument constructor that is not private.", clazz, ex);
+                throw new CreationException(ex);
             }
-            return null;
         });
     }
 
