@@ -13,6 +13,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
+        <commons-lang3.version>3.5</commons-lang3.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
         <lombok.version>1.18.8</lombok.version>
         <powermock.version>1.7.4</powermock.version>
         <easymock.version>3.4</easymock.version>
@@ -30,6 +32,20 @@
             <groupId>ma.glasnost.orika</groupId>
             <artifactId>orika-core</artifactId>
             <version>1.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>${commons-collections.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

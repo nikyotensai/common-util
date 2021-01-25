@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @SuppressWarnings("all")
-public class SingletonUtil {
+public class SingletonUtils {
 
     private static final Map<Class, Object> instanceMap = new ConcurrentHashMap<>();
 
