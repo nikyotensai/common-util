@@ -12,18 +12,30 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassMapConfig {
 
-    Map<Pair, List<Pair>> classFieldMap = new ConcurrentHashMap<>();
 
-    ClassMapConfig config(PropertyFunc aFunc, PropertyFunc bFunc) {
+    public static final ClassMapConfig defaultConfig = new ClassMapConfig();
+
+    Map<Pair<Class, Class>, List<Pair<String, String>>> classFieldMap = new ConcurrentHashMap<>();
+
+    public <T1, T2> ClassMapConfig config(PropertyFunc<T1, ?> aFunc, PropertyFunc<T2, ?> bFunc) {
         SerializedLambda aSerializedLambda = LambdaUtils.getSerializedLambda(aFunc);
         SerializedLambda bSerializedLambda = LambdaUtils.getSerializedLambda(bFunc);
-        Class aClass = aSerializedLambda.getCapturingClass();
-        Class bClass = bSerializedLambda.getCapturingClass();
+        Class aClass = aSerializedLambda.getRealImplClass();
+        Class bClass = bSerializedLambda.getRealImplClass();
         Pair<Class, Class> classPair = new Pair<>(aClass, bClass);
-        List<Pair> fieldList = classFieldMap.computeIfAbsent(classPair, (pair) -> {
+        List<Pair<String, String>> fieldList = classFieldMap.computeIfAbsent(classPair, (pair) -> {
             return new ArrayList<>();
         });
         fieldList.add(new Pair<>(LambdaUtils.getFieldName(aFunc), LambdaUtils.getFieldName(bFunc)));
         return this;
     }
+
+    public static ClassMapConfig getDefaultConfig() {
+        return defaultConfig;
+    }
+
+    public Map<Pair<Class, Class>, List<Pair<String, String>>> getClassFieldMap() {
+        return classFieldMap;
+    }
+
 }

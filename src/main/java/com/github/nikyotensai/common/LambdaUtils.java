@@ -22,34 +22,11 @@ public class LambdaUtils {
         return Optional.ofNullable(FUNC_CACHE.get(func))
                 .map(WeakReference::get)
                 .orElseGet(() -> {
-                    try {
-                        Method method = getLambdaMethod(func.getClass());
-                        method.setAccessible(Boolean.TRUE);
-                        SerializedLambda serializedLambda = (SerializedLambda) method.invoke(func);
-                        FUNC_CACHE.put(func, new WeakReference<>(serializedLambda));
-                        return (SerializedLambda) method.invoke(func);
-                    } catch (ReflectiveOperationException e) {
-                        throw new RuntimeException(e);
-                    }
+                    SerializedLambda serializedLambda = SerializedLambda.convert(func);
+                    FUNC_CACHE.put(func, new WeakReference<>(serializedLambda));
+                    return serializedLambda;
                 });
     }
-
-    private static Method getLambdaMethod(Class<?> clazz) {
-        return Optional.ofNullable(CLASS_CACHE.get(clazz))
-                .map(WeakReference::get)
-                .orElseGet(() -> {
-                    Method method = null;
-                    try {
-                        method = clazz.getDeclaredMethod("writeReplace");
-                    } catch (NoSuchMethodException e) {
-                        throw new RuntimeException(e);
-                    }
-                    method.setAccessible(Boolean.TRUE);
-                    CLASS_CACHE.put(clazz, new WeakReference<>(method));
-                    return method;
-                });
-    }
-
 
     private static String resolveFieldName(String getMethodName) {
         if (getMethodName.startsWith("get")) {

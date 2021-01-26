@@ -17,13 +17,16 @@
 package com.github.nikyotensai.common;
 
 import lombok.Getter;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import java.io.Serializable;
+import java.io.*;
 
 /**
  * copy from {@link java.lang.invoke.SerializedLambda} to support getting some attributies
  */
 @Getter
+@SuppressWarnings("unused")
 public class SerializedLambda implements Serializable {
 
     private static final long serialVersionUID = 8025925345765570181L;
@@ -37,6 +40,32 @@ public class SerializedLambda implements Serializable {
     private int implMethodKind;
     private String instantiatedMethodType;
     private Object[] capturedArgs;
+
+    public static SerializedLambda convert(PropertyFunc lambda) {
+        byte[] bytes = SerializationUtils.serialize(lambda);
+        try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(bytes)) {
+            @Override
+            protected Class<?> resolveClass(ObjectStreamClass objectStreamClass) throws IOException, ClassNotFoundException {
+                Class<?> clazz = super.resolveClass(objectStreamClass);
+                return clazz == java.lang.invoke.SerializedLambda.class ? SerializedLambda.class : clazz;
+            }
+        }) {
+            return (SerializedLambda) objIn.readObject();
+        } catch (ClassNotFoundException | IOException ex) {
+            throw new IllegalStateException("could not resolve this.", ex);
+        }
+    }
+
+    public Class<?> getRealImplClass() {
+        try {
+            String className = StringUtils.replace(getImplClass(), "/", ".");
+            return Class.forName(className);
+        } catch (ClassNotFoundException ex) {
+            throw new IllegalStateException("could not resolve this.", ex);
+        }
+    }
+
+
 
 
 }

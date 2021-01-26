@@ -6,5 +6,7 @@ import lombok.Data;
 public class B {
     private Integer id;
 
+    private Integer id2;
+
     private Long subId;
 }
