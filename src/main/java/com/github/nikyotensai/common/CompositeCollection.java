@@ -1,18 +1,25 @@
 package com.github.nikyotensai.common;
 
 import java.util.AbstractCollection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.function.Consumer;
 
 public class CompositeCollection<E> extends AbstractCollection<E> {
 
-    private LinkedList<Iterable<E>> list = new LinkedList<>();
+    private ArrayList<Iterable<E>> list = new ArrayList<>();
 
-    private int size = 0;
+    public CompositeCollection() {
+    }
 
     public CompositeCollection(Iterable<E> iterable) {
+        combine(iterable);
+    }
+
+    public CompositeCollection<E> combine(Iterable<E> iterable) {
+        list.add(iterable);
+        return this;
     }
 
     @Override
@@ -61,16 +68,26 @@ public class CompositeCollection<E> extends AbstractCollection<E> {
 
         private Iterable<E> current;
 
+        private Iterator<E> curIterator;
+
+        private int size = list.size();
+
+        private int index = 0;
+
+        private boolean indexChanged;
+
         public boolean hasNext() {
-            Iterator<Iterable<E>> iterator = list.iterator();
             while (true) {
-                current = iterator.next();
-                if (current == null) {
+                if (index < size) {
+                    current = list.get(index);
+                } else {
                     return false;
                 }
-
-                if (iterator.hasNext()) {
+                if (getCurIterator().hasNext()) {
                     return true;
+                } else {
+                    index++;
+                    indexChanged = true;
                 }
             }
         }
@@ -79,7 +96,19 @@ public class CompositeCollection<E> extends AbstractCollection<E> {
             if (current == null) {
                 return null;
             }
-            return current.iterator().next();
+            Iterator<E> curIterator = getCurIterator();
+            if (curIterator.hasNext()) {
+                return curIterator.next();
+            }
+            return null;
+        }
+
+        private Iterator<E> getCurIterator() {
+            if (curIterator == null || indexChanged) {
+                curIterator = current.iterator();
+                indexChanged = false;
+            }
+            return curIterator;
         }
 
         public void remove() {
@@ -87,9 +116,8 @@ public class CompositeCollection<E> extends AbstractCollection<E> {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void forEachRemaining(Consumer<? super E> consumer) {
-
+            throw new UnsupportedOperationException();
         }
     }
 }
